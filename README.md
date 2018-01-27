@@ -23,7 +23,7 @@ comment  获取备注
 
 ## 表格2  学员报名表  students  
 class_id varchar  前台不显示（前台查询过滤条件）  
-company_name  
+company_name   
 name  
 title  
 phone_number  
@@ -32,17 +32,17 @@ hwcloud_id
 comment 
 
 ## rest api 
-post hwtraining/v1/student 
-class_id varchar  前台不显示（前台查询过滤条件） 
-company_name 
-name 
-title  
-phone_number  
-email 
-hwcloud_id 
-comment 
+post hwtraining/v1/student  
+class_id varchar  前台不显示（前台查询过滤条件）  
+company_name  
+name  
+title   
+phone_number   
+email  
+hwcloud_id  
+comment  
 
-delete hwtraining/v1/student 
-class_id varchar  前台不显示（前台查询过滤条件） 
-name 
-phone_number 
+delete hwtraining/v1/student  
+class_id varchar  前台不显示（前台查询过滤条件）  
+name  
+phone_number  
