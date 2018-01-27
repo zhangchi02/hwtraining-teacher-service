@@ -1,4 +1,4 @@
-package com.huawei.hwtraining.teacher.service;
+package com.huawei.hwtraining.teacher.service.api;
 
 import java.util.List;
 

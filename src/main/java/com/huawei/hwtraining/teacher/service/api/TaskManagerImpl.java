@@ -1,4 +1,4 @@
-package com.huawei.hwtraining.teacher.service;
+package com.huawei.hwtraining.teacher.service.api;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -21,12 +21,14 @@ import com.huawei.hwtraining.teacher.service.model.Task;
 @RestSchema(schemaId = "taskManager")
 @RequestMapping(path = "/hwtraining/v1", produces = MediaType.APPLICATION_JSON)
 public class TaskManagerImpl implements TaskManager {
+	List<Task> tasks = new LinkedList<Task>();
 
 	@RequestMapping(path = "/tasks", method = RequestMethod.GET)
 	public List<Task> getTasks(@RequestParam(value = "classId", required = true) String classId) {
-		List<Task> tasks = new LinkedList<Task>();
-		tasks.add(new Task("201801", 1, "tank", "TEACHER", "保证课堂质量", "20180129", "提前自己验证", "已经完成了"));
-		
+		if (tasks.size() < 1) {
+			tasks.add(new Task("201801", 0, "tank01", "TEACHER", "保证课堂质量", "20180129", "提前自己验证", ""));
+			tasks.add(new Task("201801", 0, "tank02", "TEACHER", "制作证书", "20180129", "提前自己验证", ""));
+		}
 		return tasks;
 	}
 
@@ -35,7 +37,18 @@ public class TaskManagerImpl implements TaskManager {
 			@RequestParam(value = "task") String task,
 			@RequestParam(value = "handPeople", required = true) String handPeople,
 			@RequestParam(value = "comment") String comment) {
-		// TODO Auto-generated method stub
+				Task task0 =tasks.get(0);
+				if(task0.getClassId().equals(classId)&&task0.getTask().equals(task))
+				{
+					task0.setComment(comment);
+					task0.setStatus(1);
+				}
+				Task task1 =tasks.get(1);
+				if(task1.getClassId().equals(classId)&&task1.getTask().equals(task))
+				{
+					task1.setComment(comment);
+					task1.setStatus(1);
+				}
 		return true;
 	}
 
