@@ -22,6 +22,7 @@ import com.huawei.hwtraining.teacher.service.model.Student;
 @RestSchema(schemaId = "studentManager")
 @RequestMapping(path = "/hwtraining/v1", produces = MediaType.APPLICATION_JSON)
 public class StudentManagerImpl implements StudentManager {
+	List<Student> students = new LinkedList<Student>();
 
 	@RequestMapping(path = "/students", method = RequestMethod.GET)
 	public List<Student> getStudents(@RequestParam(value = "classId", required = true) String classId) {
@@ -34,23 +35,27 @@ public class StudentManagerImpl implements StudentManager {
 		// private String email;
 		// private String hwcloudId;
 		// private String comment;
-
-		List<Student> students = new LinkedList<Student>();
-		students.add(new Student("201801", "huawei", "tank", "PM", "123456", "123@gmail.com", "hwcloud", "testdata"));
+	
 		return students;
 	}
 
 	@RequestMapping(path = "/student", method = RequestMethod.POST)
 	public boolean addStudent(@RequestBody Student student) {
-		// TODO Auto-generated method stub
-		return true;
+		return students.add(student);
 	}
 
 	@RequestMapping(path = "/student", method = RequestMethod.DELETE)
 	public boolean deleteStudent(@RequestParam(value = "classId", required = true) String classId,
 			@RequestParam(value = "name", required = true) String name,
 			@RequestParam(value = "phoneNumber") String phoneNumber) {
-		// TODO Auto-generated method stub
+		for(Student student:students)
+		{
+			if(student.getClassId().equals(classId)&&student.getName().equals(name))
+			{
+				students.remove(student);
+				break;
+			}
+		}
 		return true;
 	}
 
