@@ -35,8 +35,7 @@ import org.slf4j.LoggerFactory;
  * subject1 int, subject2 int,subject3 int,subject4 int,subject5 int,subject6
  * int,subject7 int,subject8 int,subject9 int); INSERT INTO
  * hwtraining_student_studentscore VALUES (
- * '201801','tank',15,15,15,15,15,15,15,15,20 );select * from
- * hwtraining_student_studentscore;
+ * '201801','tank',15,15,15,15,15,15,15,15,20 );select * from  hwtraining_student_studentscore;
  * 
  * CREATE TABLE hwtraining_student_forum ( classId varchar(50), name
  * varchar(50), tenant varchar(50), time varchar(50), content varchar(2000),
@@ -51,7 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public interface DbAdapter {
 	static final Logger LOGGER = LoggerFactory.getLogger(DbAdapter.class);
-	String ip = "mysql";
+	String ip = "10.229.44.124";
 	int port = 3306;
 	String dbUserName = "root";
 	String dbPassword = "huawei@123";

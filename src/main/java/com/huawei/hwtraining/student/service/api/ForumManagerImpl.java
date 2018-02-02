@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.huawei.hwtraining.student.service.dao.MysqlStudentServiceDbAdapterImpl;
 import com.huawei.hwtraining.student.service.model.ForumContent;
 
 /**
@@ -25,31 +26,23 @@ import com.huawei.hwtraining.student.service.model.ForumContent;
 @RestSchema(schemaId = "forumManager")
 @RequestMapping(path = "/hwtraining/v1")
 public class ForumManagerImpl implements ForumManager {
-	List<ForumContent> forumContents=new LinkedList<ForumContent>();
-	
+	List<ForumContent> forumContents = new LinkedList<ForumContent>();
+	private ForumManager forumManager = MysqlStudentServiceDbAdapterImpl.getInstance();
+
 	@RequestMapping(path = "/upload", produces = MediaType.TEXT_PLAIN_VALUE, method = RequestMethod.POST)
 	public String uploadFile(@RequestPart(name = "file") MultipartFile file) {
-		InputStream inputStream;
-		try {
-			inputStream = file.getInputStream();
-			return IOUtils.toString(inputStream);
-		} catch (IOException e) {
-		}
-		
-	//path
-		return null;
+		return forumManager.uploadFile(file);
 	}
 
 	@RequestMapping(path = "/forumcontent", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
 	public boolean addForumContent(@RequestBody ForumContent forumContent) {
-		
-		return forumContents.add(forumContent);
+
+		return forumManager.addForumContent(forumContent);
 	}
 
 	@RequestMapping(path = "/forumcontent", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
 	public List<ForumContent> getForumContent(String classId) {
-		// TODO Auto-generated method stub
-		return forumContents;
+		return forumManager.getForumContent(classId);
 	}
 
 }

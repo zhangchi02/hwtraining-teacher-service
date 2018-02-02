@@ -28,7 +28,9 @@ public class ForumContent {
 		this.classId = classId;
 		this.name = name;
 		this.tenant = tenant;
-		this.time = time;
+		if (null != time) {
+			this.time = time;
+		}
 		this.content = content;
 		this.path = path;
 	}

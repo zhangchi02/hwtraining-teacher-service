@@ -15,6 +15,9 @@ public class Task {
 	private String detail;
 	private String comment;
 
+	public Task() {
+	}
+
 	public Task(String classId, int status, String handPeople, String role, String task, String deadline, String detail,
 			String comment) {
 		this.classId = classId;

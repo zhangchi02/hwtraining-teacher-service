@@ -1,9 +1,14 @@
 package com.huawei.hwtraining.student.service.dao;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.servicecomb.provider.springmvc.reference.RestTemplateBuilder;
@@ -16,6 +21,8 @@ import com.huawei.hwtraining.student.service.model.ForumContent;
 import com.huawei.hwtraining.student.service.model.StudentScore;
 import com.huawei.hwtraining.teacher.service.model.Student;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
+import com.obs.services.ObsClient;
+import com.obs.services.exception.ObsException;
 
 /**
  * 
@@ -25,13 +32,24 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
  */
 public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MysqlStudentServiceDbAdapterImpl.class);
+	private String endPoint = "obs.myhwclouds.com";
+	private String ak = "SQXZYPSDEZAWY10RACO7";
+	private String sk = "zMgxdKKD9Fh5owFeZGNSBhgeE1iHk7YmLLm0J4Ns";
 	private String forumTableName = "hwtraining_student_forum";
 	private String studentscoreTableName = "hwtraining_student_studentscore";
 	private String databaseName = "hwtraining_student";
 	private static Connection con = null;
 	private RestTemplate restTemplate = RestTemplateBuilder.create();
+	private static MysqlStudentServiceDbAdapterImpl mysqlStudentServiceDbAdapterImpl = new MysqlStudentServiceDbAdapterImpl();
 
-	public MysqlStudentServiceDbAdapterImpl() {
+	public static synchronized MysqlStudentServiceDbAdapterImpl getInstance() {
+		if (mysqlStudentServiceDbAdapterImpl == null) {
+			mysqlStudentServiceDbAdapterImpl = new MysqlStudentServiceDbAdapterImpl();
+		}
+		return mysqlStudentServiceDbAdapterImpl;
+	}
+
+	private MysqlStudentServiceDbAdapterImpl() {
 
 		if (con == null) {
 			try {
@@ -69,16 +87,39 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 		}
 	}
 
-	public boolean addStudentScore(String classId) {
+	public boolean deleteStudentScore(List<StudentScore> studentScores) {
+		Statement stmt = null;
+		try {
+			stmt = con.createStatement();
+			for (StudentScore studentScore : studentScores) {
+				String sql = "DELETE FROM " + studentscoreTableName + " WHERE classId='" + studentScore.getClassId()
+						+ "' and name='" + studentScore.getName() + "'";
+				stmt.executeUpdate(sql);
+			}
+			return true;
+		} catch (SQLException e) {
+			LOGGER.error("deleteStudent  error: ", e);
+		} finally {
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {
+					LOGGER.error("close statement error: ", e);
+				}
+			}
+		}
+		return false;
+	}
 
-		List<Student> students = restTemplate.getForObject(
-				"cse://hwtraining-teacher-service" + "/hwtraining/v1/students?&classId=" + classId, List.class);
+	public boolean addStudentScore(List<Student> students) {
 
 		Statement stmt = null;
-
 		try {
-
+			stmt = con.createStatement();
 			for (Student student : students) {
+				if (null == student.getName() || student.getName().isEmpty()) {
+					break;
+				}
 				StudentScore studentScore = new StudentScore();
 				studentScore.setClassId(student.getClassId());
 				studentScore.setName(student.getName());
@@ -88,7 +129,6 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 						+ studentScore.getSubject4() + "', '" + studentScore.getSubject5() + "', '"
 						+ studentScore.getSubject6() + "', '" + studentScore.getSubject7() + "', '"
 						+ studentScore.getSubject8() + "', '" + studentScore.getSubject9() + "')";
-				stmt = con.createStatement();
 				stmt.executeUpdate(sql);
 			}
 			return true;
@@ -114,10 +154,52 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 		try {
 			stmt = con.createStatement();
 			ResultSet re = stmt.executeQuery(sql);
-			if (re.getFetchSize() == 0) {
-				addStudentScore(classId);
-				 re = stmt.executeQuery(sql);
+
+			List<Student> students = restTemplate.getForObject(
+					"cse://hwtraining-teacher-service" + "/hwtraining/v1/students?&classId=" + classId, List.class);
+			re.last();// 對於女對比一下數量對不對
+			if (students.size() < 1) {
+				return new ArrayList<>();
 			}
+			if (re.getRow() < 1) {
+				addStudentScore(students);
+				re = stmt.executeQuery(sql);
+			} else {
+				List<Student> tempStudents = new LinkedList<>();
+				re.beforeFirst();
+				List<StudentScore> studentScores = populate(re, StudentScore.class);
+				for (Student student : students) {
+					boolean isExist = false;
+					for (StudentScore studentScore : studentScores) {
+						if (student.getName().equals(studentScore.getName())) {
+							isExist = true;
+							break;
+						}
+					}
+					if (!isExist) {
+						tempStudents.add(student);
+					}
+				}
+				List<StudentScore> tempStudentScores = new LinkedList<>();
+				for (StudentScore studentScore : studentScores) {
+					boolean isExist = false;
+					for (Student student : students) {
+						if (student.getName().equals(studentScore.getName())) {
+							isExist = true;
+							break;
+						}
+
+					}
+					if (!isExist) {
+						tempStudentScores.add(studentScore);
+					}
+				}
+				deleteStudentScore(tempStudentScores);
+				addStudentScore(tempStudents);
+				re = stmt.executeQuery(sql);
+
+			}
+
 			return populate(re, StudentScore.class);
 		} catch (SQLException e) {
 			LOGGER.error("getTasks  error: ", e);
@@ -134,7 +216,7 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 				}
 			}
 		}
-		return null;
+		return new ArrayList<>();
 	}
 
 	@Override
@@ -167,6 +249,27 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 
 	@Override
 	public String uploadFile(MultipartFile file) {
+		// 创建ObsClient实例
+		ObsClient obsClient = new ObsClient(ak, sk, endPoint);
+		try {
+			Date date = new Date();
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+			String dateNowStr = simpleDateFormat.format(date);
+			String bucketName = "hwtraining";
+			String path = "forum/" + dateNowStr + "-" + file.getOriginalFilename();
+			obsClient.putObject(bucketName, path, file.getInputStream());
+			String downloadUrl = "https://" + bucketName + ".obs.myhwclouds.com/" + path;
+			return downloadUrl;
+		} catch (ObsException | IOException e) {
+			LOGGER.error("putObject  error: ", e);
+		} finally {
+			try {
+				obsClient.close();
+			} catch (IOException e) {
+				LOGGER.error("close obsClient error: ", e);
+			}
+
+		}
 
 		return null;
 	}
@@ -220,7 +323,7 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 				}
 			}
 		}
-		return null;
+		return new LinkedList<ForumContent>();
 	}
 
 }

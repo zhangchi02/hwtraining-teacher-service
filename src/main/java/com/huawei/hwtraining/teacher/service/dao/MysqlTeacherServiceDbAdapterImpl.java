@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -22,11 +23,19 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MysqlTeacherServiceDbAdapterImpl.class);
 	private String taskTableName = "hwtraining_teacher_task";
-	private String studentinfTableName = "hwtraining_teacher_task";
+	private String studentinfTableName = "hwtraining_teacher_studentinf";
 	private String databaseName = "hwtraining_teacher";
 	private static Connection con = null;
+	private static MysqlTeacherServiceDbAdapterImpl mysqlTeacherServiceDbAdapterImpl = new MysqlTeacherServiceDbAdapterImpl();
 
-	public MysqlTeacherServiceDbAdapterImpl() {
+	public static synchronized MysqlTeacherServiceDbAdapterImpl getInstance() {
+		if (mysqlTeacherServiceDbAdapterImpl == null) {
+			mysqlTeacherServiceDbAdapterImpl = new MysqlTeacherServiceDbAdapterImpl();
+		}
+		return mysqlTeacherServiceDbAdapterImpl;
+	}
+
+	private MysqlTeacherServiceDbAdapterImpl() {
 		if (con == null) {
 			try {
 				con = initDb(null, 0, null, null, databaseName);
@@ -65,7 +74,6 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 
 	@Override
 	public List<Task> getTasks(String classId) {
-
 		Statement stmt = null;
 		String sql = "SELECT * FROM " + taskTableName + " WHERE classId='" + classId + "'";
 		try {
@@ -87,14 +95,14 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 				}
 			}
 		}
-		return null;
+		return new LinkedList<>();
 	}
 
 	@Override
 	public boolean modifyTasks(String classId, String task, String handPeople, String comment) {
 
 		Statement stmt = null;
-		String sql = "UPDATE " + taskTableName + " SET handPeople='" + handPeople + "',comment='" + comment
+		String sql = "UPDATE " + taskTableName + " SET handPeople='" + handPeople+ "',status=" + 1 + ",comment='" + comment
 				+ "'  WHERE classId='" + classId + "' and task='" + task + "'";
 		try {
 			stmt = con.createStatement();
@@ -137,7 +145,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 				}
 			}
 		}
-		return null;
+		return new LinkedList<>();
 	}
 
 	@Override
