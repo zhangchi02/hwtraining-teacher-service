@@ -103,7 +103,7 @@ under the License.
       <nonProxyHosts>local.net|some.host.com</nonProxyHosts>
     </proxy>
     -->
-     <!-- <proxy>
+     <proxy>
             <id>proxy1</id>
             <active>true</active>
             <protocol>http</protocol>
@@ -118,7 +118,7 @@ under the License.
             <host>10.10.23.191</host>
             <port>3128</port>
             <nonProxyHosts>*.huaweicloud.com|*.hwclouds.com</nonProxyHosts>
-        </proxy> -->
+        </proxy>
   </proxies>
 
   <!-- servers
