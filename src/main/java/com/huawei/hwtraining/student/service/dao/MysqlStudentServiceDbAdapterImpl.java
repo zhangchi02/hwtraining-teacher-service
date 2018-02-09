@@ -50,17 +50,19 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 	}
 
 	private MysqlStudentServiceDbAdapterImpl() {
-
+		Statement stmt = null;
 		if (con == null) {
 			try {
 				con = initDb(null, 0, null, null, databaseName);
+				stmt = con.createStatement();
+				stmt.execute("use " + databaseName);
 			} catch (SQLException e) {
 				if (e instanceof MySQLSyntaxErrorException) {
 					if (e.getMessage().contains("Unknown database")) {
 
-						Statement stmt = null;
+						
 						try {
-							stmt = con.createStatement();
+							//stmt = con.createStatement();
 							stmt.execute("create database " + databaseName);
 							stmt.execute("use " + databaseName);
 							stmt.execute("CREATE TABLE " + forumTableName
