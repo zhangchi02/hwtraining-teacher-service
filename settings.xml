@@ -103,7 +103,7 @@ under the License.
       <nonProxyHosts>local.net|some.host.com</nonProxyHosts>
     </proxy>
     -->
-     <proxy>
+     <!-- <proxy>
             <id>proxy1</id>
             <active>true</active>
             <protocol>http</protocol>
@@ -118,7 +118,7 @@ under the License.
             <host>10.10.23.191</host>
             <port>3128</port>
             <nonProxyHosts>*.huaweicloud.com|*.hwclouds.com</nonProxyHosts>
-        </proxy>
+        </proxy> -->
   </proxies>
 
   <!-- servers
@@ -173,14 +173,14 @@ under the License.
  <mirrors>
 	 <mirror>
 	    <id>huaweicloud</id>
-	    <mirrorOf>huaweicloudsdk</mirrorOf>
+	    <mirrorOf>central</mirrorOf>
 	    <url>https://mirrors.huaweicloud.com/repository/maven/</url>
 	 </mirror>
      <mirror>
       <id>mirrorId</id>
       <mirrorOf>central</mirrorOf>
       <name>Mirror of Huawei CSE.</name>
-      <url>http://117.78.32.218/nexus/content/groups/public</url>
+      <url>http://maven.huaweicse.com/nexus/content/groups/public</url>
     </mirror>
 
  </mirrors>
