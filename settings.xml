@@ -46,7 +46,7 @@ under the License.
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
- <!--  <localRepository>E:\repository4\servicecomb</localRepository>  -->
+ <!-- <localRepository>E:\repository4\servicecomb</localRepository> -->
  <!-- localRepository
    | The path to the local repository maven will use to store artifacts.
    |
@@ -179,8 +179,8 @@ under the License.
     </mirror>
  <mirror>
     <id>huaweicloud</id>
-    <mirrorOf>central</mirrorOf>
-    <url>https://mirrors.huaweicloud.com/repository/maven/</url>
+    <mirrorOf>huaweicloudsdk</mirrorOf>
+    <url>https://mirrors.huaweicloud.com/repository/maven/huaweicloudsdk/</url>
  </mirror>
 
  </mirrors>
@@ -208,7 +208,7 @@ under the License.
    |
    |-->
   <profiles>
-  <profile>
+  <!-- <profile>
     <id>huaweicloudsdk</id>
     <repositories>
         <repository>
@@ -218,7 +218,7 @@ under the License.
             <snapshots><enabled>true</enabled></snapshots>
         </repository>
     </repositories>
-</profile>
+</profile> -->
     <!-- profile
      | Specifies a set of introductions to the build process, to be activated using one or more of the
      | mechanisms described above. For inheritance purposes, and to activate profiles via <activatedProfiles/>
@@ -294,6 +294,6 @@ under the License.
   </activeProfiles>
   -->
     <activeProfiles>
-    <activeProfile>huaweicloudsdk</activeProfile>
+    <!-- <activeProfile>huaweicloudsdk</activeProfile> -->
   </activeProfiles>
 </settings>
