@@ -216,7 +216,7 @@ under the License.
 	            <id>huaweicsesdk</id>
 	            <url>https://mirrors.huaweicloud.com/repository/maven/</url>
 	            <releases><enabled>true</enabled></releases>
-	            <snapshots><enabled>true</enabled></snapshots>
+	            <!--<snapshots><enabled>true</enabled></snapshots>-->
 	        </repository>
 	    </repositories>
 	</profile>
