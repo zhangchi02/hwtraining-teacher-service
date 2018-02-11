@@ -174,7 +174,8 @@ under the License.
 	 <mirror>
 	    <id>huaweicloud</id>
 	    <mirrorOf>*,!huaweicsesdk</mirrorOf>
-	    <url>https://mirrors.huaweicloud.com/repository/maven/</url>
+	    
+	    <url>http://maven.huaweicse.com/nexus/content/groups/public</url>
 	 </mirror>
      <!-- <mirror>
       <id>mirrorId</id>
@@ -213,7 +214,7 @@ under the License.
 	    <repositories>
 	        <repository>
 	            <id>huaweicsesdk</id>
-	            <url>http://maven.huaweicse.com/nexus/content/groups/public</url>
+	            <url>https://mirrors.huaweicloud.com/repository/maven/</url>
 	            <releases><enabled>true</enabled></releases>
 	            <snapshots><enabled>true</enabled></snapshots>
 	        </repository>
