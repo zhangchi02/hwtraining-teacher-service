@@ -173,7 +173,7 @@ under the License.
  <mirrors>
 	 <mirror>
 	    <id>huaweicloud</id>
-	    <mirrorOf>central</mirrorOf>
+	    <mirrorOf>*,!huaweicsesdk</mirrorOf>
 	    <url>https://mirrors.huaweicloud.com/repository/maven/</url>
 	 </mirror>
      <!-- <mirror>
