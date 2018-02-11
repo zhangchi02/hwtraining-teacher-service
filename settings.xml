@@ -46,7 +46,7 @@ under the License.
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
-<!--  <localRepository>E:\repository2\servicecomb</localRepository> -->
+ <!--  <localRepository>E:\repository4\servicecomb</localRepository>  -->
  <!-- localRepository
    | The path to the local repository maven will use to store artifacts.
    |
@@ -103,7 +103,7 @@ under the License.
       <nonProxyHosts>local.net|some.host.com</nonProxyHosts>
     </proxy>
     -->
-     <proxy>
+    <proxy>
             <id>proxy1</id>
             <active>true</active>
             <protocol>http</protocol>
@@ -171,18 +171,17 @@ under the License.
    | server for that repository.
    |-->
  <mirrors>
-	 <mirror>
-	    <id>huaweicloud</id>
-	    <mirrorOf>*,!huaweicsesdk</mirrorOf>
-	    
-	    <url>http://maven.huaweicse.com/nexus/content/groups/public</url>
-	 </mirror>
-     <!-- <mirror>
+     <mirror>
       <id>mirrorId</id>
-      <mirrorOf>central</mirrorOf>
+      <mirrorOf>*,!huaweicloudsdk</mirrorOf>
       <name>Mirror of Huawei CSE.</name>
       <url>http://maven.huaweicse.com/nexus/content/groups/public</url>
-    </mirror> -->
+    </mirror>
+ <mirror>
+    <id>huaweicloud</id>
+    <mirrorOf>central</mirrorOf>
+    <url>https://mirrors.huaweicloud.com/repository/maven/</url>
+ </mirror>
 
  </mirrors>
 
@@ -209,17 +208,17 @@ under the License.
    |
    |-->
   <profiles>
-	  <profile>
-	    <id>huaweicsesdk</id>
-	    <repositories>
-	        <repository>
-	            <id>huaweicsesdk</id>
-	            <url>https://mirrors.huaweicloud.com/repository/maven/</url>
-	            <releases><enabled>true</enabled></releases>
-	            <!--<snapshots><enabled>true</enabled></snapshots>-->
-	        </repository>
-	    </repositories>
-	</profile>
+  <profile>
+    <id>huaweicloudsdk</id>
+    <repositories>
+        <repository>
+            <id>huaweicloudsdk</id>
+            <url>https://mirrors.huaweicloud.com/repository/maven/huaweicloudsdk/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+</profile>
     <!-- profile
      | Specifies a set of introductions to the build process, to be activated using one or more of the
      | mechanisms described above. For inheritance purposes, and to activate profiles via <activatedProfiles/>
@@ -295,6 +294,6 @@ under the License.
   </activeProfiles>
   -->
     <activeProfiles>
-    <activeProfile>huaweicsesdk</activeProfile>
+    <activeProfile>huaweicloudsdk</activeProfile>
   </activeProfiles>
 </settings>
