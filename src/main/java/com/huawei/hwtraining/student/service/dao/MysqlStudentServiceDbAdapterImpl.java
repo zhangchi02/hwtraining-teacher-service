@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.huawei.hwtraining.student.service.model.ForumContent;
 import com.huawei.hwtraining.student.service.model.StudentScore;
+import com.huawei.hwtraining.student.service.model.StudentSurvey;
 import com.huawei.hwtraining.teacher.service.model.Student;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 import com.obs.services.ObsClient;
@@ -36,6 +37,7 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 	private String ak = "SQXZYPSDEZAWY10RACO7";
 	private String sk = "zMgxdKKD9Fh5owFeZGNSBhgeE1iHk7YmLLm0J4Ns";
 	private String forumTableName = "hwtraining_student_forum";
+	private String surveyTableName = "hwtraining_student_survey";
 	private String studentscoreTableName = "hwtraining_student_studentscore";
 	private String databaseName = "hwtraining_student";
 	private static Connection con = null;
@@ -50,21 +52,25 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 	}
 
 	private MysqlStudentServiceDbAdapterImpl() {
-
+		Statement stmt = null;
 		if (con == null) {
 			try {
 				con = initDb(null, 0, null, null, databaseName);
+				stmt = con.createStatement();
+				stmt.execute("use " + databaseName);
 			} catch (SQLException e) {
 				if (e instanceof MySQLSyntaxErrorException) {
 					if (e.getMessage().contains("Unknown database")) {
 
-						Statement stmt = null;
+						
 						try {
-							stmt = con.createStatement();
+							//stmt = con.createStatement();
 							stmt.execute("create database " + databaseName);
 							stmt.execute("use " + databaseName);
 							stmt.execute("CREATE TABLE " + forumTableName
 									+ " ( classId varchar(50), name varchar(50), tenant varchar(50), time varchar(50), content varchar(2000), path varchar(255))");
+							stmt.execute("CREATE TABLE " + surveyTableName
+									+ " ( classId varchar(50), day varchar(50), comment varchar(2000))");
 							stmt.execute("CREATE TABLE " + studentscoreTableName
 									+ " ( classId varchar(50), name varchar(50), subject1 int, subject2 int,subject3 int,subject4 int,subject5 int,subject6 int,subject7 int,subject8 int,subject9 int)");
 
@@ -324,6 +330,31 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 			}
 		}
 		return new LinkedList<ForumContent>();
+	}
+
+	@Override
+	public boolean addSurvey(StudentSurvey survey) {
+		  
+		Statement stmt = null;
+		String sql = "INSERT INTO " + surveyTableName + " VALUES ('" + survey.getClassId() + "', " + "'"
+				+ survey.getDay() + "', '" + survey.getComment() + "')";
+		try {
+
+			stmt = con.createStatement();
+			stmt.executeUpdate(sql);
+			return true;
+		} catch (SQLException e) {
+			LOGGER.error("addSurvey  error: ", e);
+		} finally {
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {
+					LOGGER.error("close statement error: ", e);
+				}
+			}
+		}
+		return false;
 	}
 
 }

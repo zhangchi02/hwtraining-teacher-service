@@ -50,10 +50,10 @@ import org.slf4j.LoggerFactory;
  */
 public interface DbAdapter {
 	static final Logger LOGGER = LoggerFactory.getLogger(DbAdapter.class);
-	String ip = "10.229.44.124";
-	int port = 3306;
+	String ip = "49.4.14.217";
+	int port = 8635;
 	String dbUserName = "root";
-	String dbPassword = "huawei@123";
+	String dbPassword = "Huawei@0123";
 	String jdbcName = "com.mysql.jdbc.Driver";
 
 	default <T> List<T> populate(ResultSet rs, Class<T> clazz)
@@ -100,7 +100,7 @@ public interface DbAdapter {
 			tempDbPassword = dbPassword;
 		}
 
-		Statement stmt;
+		//Statement stmt;
 		Connection con = null;
 		try {
 			Class.forName(jdbcName);
@@ -113,12 +113,12 @@ public interface DbAdapter {
 			con = DriverManager.getConnection("jdbc:mysql://" + tempIp + ":" + tempPort + "/", tempDbUserName,
 					tempDbPassword);
 			LOGGER.info("Get DB connection success.");
-			stmt = con.createStatement();
+			//stmt = con.createStatement();
 		} catch (SQLException e) {
 			LOGGER.error("Get DB connection error: ", e);
 			return null;
 		}
-		stmt.execute("use " + databaseName);
+		//stmt.execute("use " + databaseName);
 		return con;
 	}
 }
