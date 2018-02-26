@@ -50,8 +50,8 @@ import org.slf4j.LoggerFactory;
  */
 public interface DbAdapter {
 	static final Logger LOGGER = LoggerFactory.getLogger(DbAdapter.class);
-	String ip = "127.0.0.1";
-	int port = 3306;
+	String ip = "49.4.14.217";
+	int port = 8635;
 	String dbUserName = "root";
 	String dbPassword = "Huawei@0123";
 	String jdbcName = "com.mysql.jdbc.Driver";
