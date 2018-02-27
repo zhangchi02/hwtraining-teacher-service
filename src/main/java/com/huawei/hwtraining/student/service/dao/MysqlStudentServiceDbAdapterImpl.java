@@ -68,7 +68,7 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 							stmt.execute("create database " + databaseName);
 							stmt.execute("use " + databaseName);
 							stmt.execute("CREATE TABLE " + forumTableName
-									+ " ( classId varchar(50), name varchar(50), tenant varchar(50), time varchar(50), content varchar(2000), path varchar(255))");
+									+ " ( classId varchar(50), forumusername varchar(50), name varchar(50), tenant varchar(50), time varchar(50), content varchar(2000), path varchar(255))");
 							stmt.execute("CREATE TABLE " + surveyTableName
 									+ " ( classId varchar(50), day varchar(50), comment varchar(2000))");
 							stmt.execute("CREATE TABLE " + studentscoreTableName
@@ -283,7 +283,7 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 	@Override
 	public boolean addForumContent(ForumContent forumContent) {
 		Statement stmt = null;
-		String sql = "INSERT INTO " + forumTableName + " VALUES ('" + forumContent.getClassId() + "', " + "'"
+		String sql = "INSERT INTO " + forumTableName + " VALUES ('" + forumContent.getClassId() + "', '" + forumContent.getForumusername() + "','"
 				+ forumContent.getName() + "', '" + forumContent.getTenant() + "', '" + forumContent.getTime() + "', '"
 				+ forumContent.getContent() + "', '" + forumContent.getPath() + "')";
 		try {
