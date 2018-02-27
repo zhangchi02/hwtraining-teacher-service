@@ -24,6 +24,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 	private static final Logger LOGGER = LoggerFactory.getLogger(MysqlTeacherServiceDbAdapterImpl.class);
 	private String taskTableName = "hwtraining_teacher_task";
 	private String studentinfTableName = "hwtraining_teacher_studentinf";
+	private String classidTableName = "hwtraining_teacher_classid";
 	private String databaseName = "hwtraining_teacher";
 	private static Connection con = null;
 	private static MysqlTeacherServiceDbAdapterImpl mysqlTeacherServiceDbAdapterImpl = new MysqlTeacherServiceDbAdapterImpl();
@@ -45,17 +46,17 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 			} catch (SQLException e) {
 				if (e instanceof MySQLSyntaxErrorException) {
 					if (e.getMessage().contains("Unknown database")) {
-                        
-						//Statement stmt = null;
+
+						// Statement stmt = null;
 						try {
-							//stmt = con.createStatement();
+							// stmt = con.createStatement();
 							stmt.execute("create database " + databaseName);
 							stmt.execute("use " + databaseName);
 							stmt.execute("CREATE TABLE " + taskTableName
 									+ " ( classId varchar(50), status int, handPeople varchar(255), role varchar(255), task varchar(255), deadline varchar(20),detail varchar(500),comment varchar(255) )");
 							stmt.execute("CREATE TABLE " + studentinfTableName
 									+ " ( classId varchar(50), name varchar(50), companyName varchar(255), title varchar(255), phoneNumber varchar(30), email varchar(100),hwcloudId varchar(100),comment varchar(255) )");
-
+							stmt.execute("CREATE TABLE " + classidTableName + "  ( classId varchar(50) )");
 						} catch (SQLException e1) {
 							LOGGER.error("execute sql error: ", e1);
 						} finally {
@@ -105,8 +106,8 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 	public boolean modifyTasks(String classId, String task, String handPeople, String comment) {
 
 		Statement stmt = null;
-		String sql = "UPDATE " + taskTableName + " SET handPeople='" + handPeople+ "',status=" + 1 + ",comment='" + comment
-				+ "'  WHERE classId='" + classId + "' and task='" + task + "'";
+		String sql = "UPDATE " + taskTableName + " SET handPeople='" + handPeople + "',status=" + 1 + ",comment='"
+				+ comment + "'  WHERE classId='" + classId + "' and task='" + task + "'";
 		try {
 			stmt = con.createStatement();
 			stmt.executeUpdate(sql);
@@ -199,5 +200,31 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public String getCurrentClassId() {
+		String classId = "0";
+		Statement stmt = null;
+		String sql = "SELECT * FROM " + classidTableName;
+		try {
+			stmt = con.createStatement();
+			ResultSet re = stmt.executeQuery(sql);
+			if (re.next()) {
+				classId = re.getString(1);
+			}
+			return classId;
+		} catch (SQLException e) {
+			LOGGER.error("getStudents  error: ", e);
+		} finally {
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {
+					LOGGER.error("close statement error", e);
+				}
+			}
+		}
+		return classId;
 	}
 }

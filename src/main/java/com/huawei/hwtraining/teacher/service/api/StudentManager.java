@@ -11,6 +11,8 @@ import com.huawei.hwtraining.teacher.service.model.Student;
  */
 public interface StudentManager {
 
+	String getCurrentClassId();
+	
 	List<Student> getStudents(String classId);
 
 	boolean addStudent(Student student);

@@ -39,5 +39,11 @@ public class StudentManagerImpl implements StudentManager {
 			@RequestParam(value = "phoneNumber") String phoneNumber) {
 		return studentManager.deleteStudent(classId, name, phoneNumber);
 	}
+	
+	@RequestMapping(path = "/currentclassid", method = RequestMethod.GET)
+	@Override
+	public String getCurrentClassId() {
+		return studentManager.getCurrentClassId();
+	}
 
 }
