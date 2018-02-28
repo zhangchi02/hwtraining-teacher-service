@@ -7,8 +7,10 @@ package com.huawei.hwtraining.teacher.service.model;
  *         2018年1月27日
  */
 public class Student {
+	private String inviter;
 	private String classId;
 	private String companyName;
+	private String industry;
 	private String name;
 	private String title;
 	private String phoneNumber;
@@ -20,16 +22,34 @@ public class Student {
 
 	}
 
-	public Student(String classId, String companyName, String name, String title, String phoneNumber, String email,
+	public Student(String inviter,String classId, String companyName, String industry, String name, String title, String phoneNumber, String email,
 			String hwcloudId, String comment) {
+		this.inviter = inviter;
 		this.classId = classId;
 		this.companyName = companyName;
+		this.industry = industry;
 		this.name = name;
 		this.title = title;
 		this.phoneNumber = phoneNumber;
 		this.email = email;
 		this.hwcloudId = hwcloudId;
 		this.comment = comment;
+	}
+    
+	public String getInviter() {
+		return inviter;
+	}
+
+	public void setInviter(String inviter) {
+		this.inviter = inviter;
+	}
+
+	public String getIndustry() {
+		return industry;
+	}
+
+	public void setIndustry(String industry) {
+		this.industry = industry;
 	}
 
 	public String getClassId() {
