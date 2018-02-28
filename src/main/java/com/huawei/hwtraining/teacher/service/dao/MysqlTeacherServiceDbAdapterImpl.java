@@ -55,7 +55,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 							stmt.execute("CREATE TABLE " + taskTableName
 									+ " ( classId varchar(50), status int, handPeople varchar(255), role varchar(255), task varchar(255), deadline varchar(20),detail varchar(500),comment varchar(255) )");
 							stmt.execute("CREATE TABLE " + studentinfTableName
-									+ " ( classId varchar(50), name varchar(50), companyName varchar(255), title varchar(255), phoneNumber varchar(30), email varchar(100),hwcloudId varchar(100),comment varchar(255) )");
+									+ " ( inviter varchar(50), classId varchar(50), name varchar(50), companyName varchar(255), industry varchar(100), title varchar(255), phoneNumber varchar(30), email varchar(100),hwcloudId varchar(100),comment varchar(255) )");
 							stmt.execute("CREATE TABLE " + classidTableName + "  ( classId varchar(50) )");
 						} catch (SQLException e1) {
 							LOGGER.error("execute sql error: ", e1);
@@ -155,8 +155,8 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 	@Override
 	public boolean addStudent(Student student) {
 		Statement stmt = null;
-		String sql = "INSERT INTO " + studentinfTableName + " VALUES ('" + student.getClassId() + "', " + "'"
-				+ student.getName() + "', '" + student.getCompanyName() + "', '" + student.getTitle() + "', '"
+		String sql = "INSERT INTO " + studentinfTableName + " VALUES ('" +student.getInviter()+"','" +student.getClassId() + "', " + "'"
+				+ student.getName() + "', '" + student.getCompanyName() + "', '" +student.getIndustry()+"','"+ student.getTitle() + "', '"
 				+ student.getPhoneNumber() + "', '" + student.getEmail() + "', '" + student.getHwcloudId() + "', '"
 				+ student.getComment() + "')";
 		try {
