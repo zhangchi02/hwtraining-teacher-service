@@ -11,6 +11,7 @@ import java.util.Date;
  */
 public class ForumContent {
 	private String classId;
+	private String forumusername;
 	private String name;
 	private String tenant;
 	private String time;
@@ -24,8 +25,9 @@ public class ForumContent {
 		time = dateNowStr;
 	}
 
-	public ForumContent(String classId, String name, String tenant, String time, String content, String path) {
+	public ForumContent(String classId, String forumusername, String name, String tenant, String time, String content, String path) {
 		this.classId = classId;
+		this.forumusername = forumusername;
 		this.name = name;
 		this.tenant = tenant;
 		if (null != time) {
@@ -41,6 +43,14 @@ public class ForumContent {
 
 	public void setClassId(String classId) {
 		this.classId = classId;
+	}
+    
+	public String getForumusername() {
+		return forumusername;
+	}
+
+	public void setForumusername(String forumusername) {
+		this.forumusername = forumusername;
 	}
 
 	public String getName() {
