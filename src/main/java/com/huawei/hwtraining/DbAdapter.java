@@ -81,7 +81,7 @@ public interface DbAdapter {
 		return list;
 	}
 
-	default Connection initDb(String ip, int port, String dbUserName, String dbPassword, String databaseName)
+	default Connection initDb(String ip, int port, String dbUserName, String dbPassword)
 			throws SQLException {
 		String tempIp = null != ip ? ip : DbAdapter.ip;
 		tempIp = null != System.getenv("MYSQL_DB_IP") ? System.getenv("MYSQL_DB_IP") : tempIp;
@@ -100,7 +100,6 @@ public interface DbAdapter {
 			tempDbPassword = dbPassword;
 		}
 
-		//Statement stmt;
 		Connection con = null;
 		try {
 			Class.forName(jdbcName);
@@ -113,12 +112,10 @@ public interface DbAdapter {
 			con = DriverManager.getConnection("jdbc:mysql://" + tempIp + ":" + tempPort + "/", tempDbUserName,
 					tempDbPassword);
 			LOGGER.info("Get DB connection success.");
-			//stmt = con.createStatement();
 		} catch (SQLException e) {
 			LOGGER.error("Get DB connection error: ", e);
 			return null;
 		}
-		//stmt.execute("use " + databaseName);
 		return con;
 	}
 }

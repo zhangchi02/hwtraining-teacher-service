@@ -36,44 +36,48 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 		return mysqlTeacherServiceDbAdapterImpl;
 	}
 
-	private MysqlTeacherServiceDbAdapterImpl() {
+	private Connection getConnection(Connection connection) {
 		Statement stmt = null;
-		if (con == null) {
-			try {
-				con = initDb(null, 0, null, null, databaseName);
-				stmt = con.createStatement();
-				stmt.execute("use " + databaseName);
-			} catch (SQLException e) {
-				if (e instanceof MySQLSyntaxErrorException) {
-					if (e.getMessage().contains("Unknown database")) {
+		try {
+			if (null == connection || connection.isClosed()) {
 
-						// Statement stmt = null;
+				connection = initDb(null, 0, null, null);
+				stmt = connection.createStatement();
+				stmt.execute("use " + databaseName);
+			}
+		} catch (SQLException e) {
+			if (e instanceof MySQLSyntaxErrorException) {
+				if (e.getMessage().contains("Unknown database")) {
+
+					try {
+						stmt.execute("create database " + databaseName);
+						stmt.execute("use " + databaseName);
+						stmt.execute("CREATE TABLE " + taskTableName
+								+ " ( classId varchar(50), status int, handPeople varchar(255), role varchar(255), task varchar(255), deadline varchar(20),detail varchar(500),comment varchar(255) )");
+						stmt.execute("CREATE TABLE " + studentinfTableName
+								+ " ( inviter varchar(50), classId varchar(50), name varchar(50), companyName varchar(255), industry varchar(100), title varchar(255), phoneNumber varchar(30), email varchar(100),hwcloudId varchar(100),comment varchar(255) )");
+						stmt.execute("CREATE TABLE " + classidTableName + "  ( classId varchar(50) )");
+					} catch (SQLException e1) {
+						LOGGER.error("execute sql error: ", e1);
+					} finally {
 						try {
-							// stmt = con.createStatement();
-							stmt.execute("create database " + databaseName);
-							stmt.execute("use " + databaseName);
-							stmt.execute("CREATE TABLE " + taskTableName
-									+ " ( classId varchar(50), status int, handPeople varchar(255), role varchar(255), task varchar(255), deadline varchar(20),detail varchar(500),comment varchar(255) )");
-							stmt.execute("CREATE TABLE " + studentinfTableName
-									+ " ( inviter varchar(50), classId varchar(50), name varchar(50), companyName varchar(255), industry varchar(100), title varchar(255), phoneNumber varchar(30), email varchar(100),hwcloudId varchar(100),comment varchar(255) )");
-							stmt.execute("CREATE TABLE " + classidTableName + "  ( classId varchar(50) )");
-						} catch (SQLException e1) {
-							LOGGER.error("execute sql error: ", e1);
-						} finally {
-							try {
-								if (stmt != null) {
-									stmt.close();
-								}
-							} catch (SQLException e2) {
-								LOGGER.error("closed statement error: ", e2);
+							if (stmt != null) {
+								stmt.close();
 							}
+						} catch (SQLException e2) {
+							LOGGER.error("closed statement error: ", e2);
 						}
 					}
-				} else {
-					LOGGER.error("execute sql error: ", e);
 				}
+			} else {
+				LOGGER.error("execute sql error: ", e);
 			}
 		}
+		return connection;
+	}
+
+	private MysqlTeacherServiceDbAdapterImpl() {
+		con=getConnection(con);
 	}
 
 	@Override
@@ -81,7 +85,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 		Statement stmt = null;
 		String sql = "SELECT * FROM " + taskTableName + " WHERE classId='" + classId + "'";
 		try {
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			ResultSet re = stmt.executeQuery(sql);
 			return populate(re, Task.class);
 		} catch (SQLException e) {
@@ -109,7 +113,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 		String sql = "UPDATE " + taskTableName + " SET handPeople='" + handPeople + "',status=" + 1 + ",comment='"
 				+ comment + "'  WHERE classId='" + classId + "' and task='" + task + "'";
 		try {
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			stmt.executeUpdate(sql);
 			return true;
 		} catch (SQLException e) {
@@ -131,7 +135,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 		Statement stmt = null;
 		String sql = "SELECT * FROM " + studentinfTableName + " WHERE classId='" + classId + "'";
 		try {
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			ResultSet re = stmt.executeQuery(sql);
 			return populate(re, Student.class);
 		} catch (SQLException e) {
@@ -161,7 +165,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 				+ student.getComment() + "')";
 		try {
 
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			stmt.executeUpdate(sql);
 			return true;
 		} catch (SQLException e) {
@@ -185,7 +189,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 		String sql = "DELETE FROM " + studentinfTableName + " WHERE classId='" + classId + "' and name='" + name
 				+ "' and phoneNumber='" + phoneNumber + "'";
 		try {
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			stmt.executeUpdate(sql);
 			return true;
 		} catch (SQLException e) {
@@ -208,7 +212,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 		Statement stmt = null;
 		String sql = "SELECT * FROM " + classidTableName;
 		try {
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			ResultSet re = stmt.executeQuery(sql);
 			if (re.next()) {
 				classId = re.getString(1);

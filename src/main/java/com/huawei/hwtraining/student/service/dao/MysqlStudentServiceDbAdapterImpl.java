@@ -51,52 +51,54 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 		return mysqlStudentServiceDbAdapterImpl;
 	}
 
-	private MysqlStudentServiceDbAdapterImpl() {
+	private Connection getConnection(Connection connection) {
 		Statement stmt = null;
-		if (con == null) {
-			try {
-				con = initDb(null, 0, null, null, databaseName);
-				stmt = con.createStatement();
+		try {
+			if (connection == null || connection.isClosed()) {
+				connection = initDb(null, 0, null, null);
+				stmt = connection.createStatement();
 				stmt.execute("use " + databaseName);
-			} catch (SQLException e) {
-				if (e instanceof MySQLSyntaxErrorException) {
-					if (e.getMessage().contains("Unknown database")) {
+			}
+		} catch (SQLException e) {
+			if (e instanceof MySQLSyntaxErrorException) {
+				if (e.getMessage().contains("Unknown database")) {
 
-						
+					try {
+						stmt.execute("create database " + databaseName);
+						stmt.execute("use " + databaseName);
+						stmt.execute("CREATE TABLE " + forumTableName
+								+ " ( classId varchar(50), forumusername varchar(50), name varchar(50), tenant varchar(50), time varchar(50), content varchar(2000), path varchar(255))");
+						stmt.execute("CREATE TABLE " + surveyTableName
+								+ " ( classId varchar(50), day varchar(50), comment varchar(2000))");
+						stmt.execute("CREATE TABLE " + studentscoreTableName
+								+ " ( classId varchar(50), name varchar(50), subject1 int, subject2 int,subject3 int,subject4 int,subject5 int,subject6 int,subject7 int,subject8 int,subject9 int)");
+
+					} catch (SQLException e1) {
+						LOGGER.error("execute sql error: ", e1);
+					} finally {
 						try {
-							//stmt = con.createStatement();
-							stmt.execute("create database " + databaseName);
-							stmt.execute("use " + databaseName);
-							stmt.execute("CREATE TABLE " + forumTableName
-									+ " ( classId varchar(50), forumusername varchar(50), name varchar(50), tenant varchar(50), time varchar(50), content varchar(2000), path varchar(255))");
-							stmt.execute("CREATE TABLE " + surveyTableName
-									+ " ( classId varchar(50), day varchar(50), comment varchar(2000))");
-							stmt.execute("CREATE TABLE " + studentscoreTableName
-									+ " ( classId varchar(50), name varchar(50), subject1 int, subject2 int,subject3 int,subject4 int,subject5 int,subject6 int,subject7 int,subject8 int,subject9 int)");
-
-						} catch (SQLException e1) {
-							LOGGER.error("execute sql error: ", e1);
-						} finally {
-							try {
-								if (stmt != null) {
-									stmt.close();
-								}
-							} catch (SQLException e2) {
-								LOGGER.error("closed statement error: ", e2);
+							if (stmt != null) {
+								stmt.close();
 							}
+						} catch (SQLException e2) {
+							LOGGER.error("closed statement error: ", e2);
 						}
 					}
-				} else {
-					LOGGER.error("execute sql error: ", e);
 				}
+			} else {
+				LOGGER.error("execute sql error: ", e);
 			}
 		}
+		return connection;
+	}
+	private MysqlStudentServiceDbAdapterImpl() {
+		con = getConnection(con);
 	}
 
 	public boolean deleteStudentScore(List<StudentScore> studentScores) {
 		Statement stmt = null;
 		try {
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			for (StudentScore studentScore : studentScores) {
 				String sql = "DELETE FROM " + studentscoreTableName + " WHERE classId='" + studentScore.getClassId()
 						+ "' and name='" + studentScore.getName() + "'";
@@ -121,7 +123,7 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 
 		Statement stmt = null;
 		try {
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			for (Student student : students) {
 				if (null == student.getName() || student.getName().isEmpty()) {
 					break;
@@ -158,7 +160,7 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 		Statement stmt = null;
 		String sql = "SELECT * FROM " + studentscoreTableName + " WHERE classId='" + classId + "'";
 		try {
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			ResultSet re = stmt.executeQuery(sql);
 
 			List<Student> students = restTemplate.getForObject(
@@ -236,7 +238,7 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 				+ student.getSubject8() + "',subject9='" + student.getSubject9() + "'  WHERE classId='"
 				+ student.getClassId() + "' and name='" + student.getName() + "'";
 		try {
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			stmt.executeUpdate(sql);
 			return true;
 		} catch (SQLException e) {
@@ -288,7 +290,7 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 				+ forumContent.getContent() + "', '" + forumContent.getPath() + "')";
 		try {
 
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			stmt.executeUpdate(sql);
 			return true;
 		} catch (SQLException e) {
@@ -311,7 +313,7 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 		Statement stmt = null;
 		String sql = "SELECT * FROM " + forumTableName + " WHERE classId='" + classId + "'";
 		try {
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			ResultSet re = stmt.executeQuery(sql);
 			return populate(re, ForumContent.class);
 		} catch (SQLException e) {
@@ -340,7 +342,7 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 				+ survey.getDay() + "', '" + survey.getComment() + "')";
 		try {
 
-			stmt = con.createStatement();
+			stmt = getConnection(con).createStatement();
 			stmt.executeUpdate(sql);
 			return true;
 		} catch (SQLException e) {
