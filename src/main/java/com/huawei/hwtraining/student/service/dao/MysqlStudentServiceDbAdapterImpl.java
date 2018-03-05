@@ -285,8 +285,11 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 	@Override
 	public boolean addForumContent(ForumContent forumContent) {
 		Statement stmt = null;
+		Date currentTime = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String dateString = formatter.format(currentTime);
 		String sql = "INSERT INTO " + forumTableName + " VALUES ('" + forumContent.getClassId() + "', '" + forumContent.getForumusername() + "','"
-				+ forumContent.getName() + "', '" + forumContent.getTenant() + "', '" + forumContent.getTime() + "', '"
+				+ forumContent.getName() + "', '" + forumContent.getTenant() + "', '" + dateString + "', '"
 				+ forumContent.getContent() + "', '" + forumContent.getPath() + "')";
 		try {
 
@@ -311,7 +314,7 @@ public class MysqlStudentServiceDbAdapterImpl implements StudentServiceDbAdapter
 	public List<ForumContent> getForumContent(String classId) {
 
 		Statement stmt = null;
-		String sql = "SELECT * FROM " + forumTableName + " WHERE classId='" + classId + "'";
+		String sql = "SELECT * FROM " + forumTableName + " WHERE classId='" + classId + "' order by time DESC";
 		try {
 			stmt = getConnection(con).createStatement();
 			ResultSet re = stmt.executeQuery(sql);
