@@ -17,13 +17,14 @@ public class Student {
 	private String email;
 	private String hwcloudId;
 	private String comment;
+	private String studentId;
 
 	public Student() {
 
 	}
 
 	public Student(String inviter,String classId, String companyName, String industry, String name, String title, String phoneNumber, String email,
-			String hwcloudId, String comment) {
+			String hwcloudId, String comment,String studentId) {
 		this.inviter = inviter;
 		this.classId = classId;
 		this.companyName = companyName;
@@ -34,6 +35,7 @@ public class Student {
 		this.email = email;
 		this.hwcloudId = hwcloudId;
 		this.comment = comment;
+		this.studentId = studentId;
 	}
     
 	public String getInviter() {
@@ -115,4 +117,13 @@ public class Student {
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
+
+	public String getStudentId() {
+		return studentId;
+	}
+
+	public void setStudentId(String studentId) {
+		this.studentId = studentId;
+	}
+	
 }

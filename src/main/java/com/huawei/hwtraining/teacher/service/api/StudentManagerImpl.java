@@ -27,17 +27,27 @@ public class StudentManagerImpl implements StudentManager {
 	public List<Student> getStudents(@RequestParam(value = "classId", required = true) String classId) {
 		return studentManager.getStudents(classId);
 	}
+	
+	@RequestMapping(path = "/student", method = RequestMethod.GET)
+	public List<Student> getStudent(@RequestParam(value = "studentId", required = true) String studentId) {
+		return studentManager.getStudent(studentId);
+	}
 
 	@RequestMapping(path = "/student", method = RequestMethod.POST)
 	public boolean addStudent(@RequestBody Student student) {
 		return studentManager.addStudent(student);
 	}
+	@RequestMapping(path = "/student", method = RequestMethod.PUT)
+	public boolean updateStudent(@RequestBody Student student) {
+		return studentManager.updateStudent(student);
+	}
 
 	@RequestMapping(path = "/student", method = RequestMethod.DELETE)
 	public boolean deleteStudent(@RequestParam(value = "classId", required = true) String classId,
 			@RequestParam(value = "name", required = true) String name,
-			@RequestParam(value = "phoneNumber") String phoneNumber) {
-		return studentManager.deleteStudent(classId, name, phoneNumber);
+			@RequestParam(value = "phoneNumber") String phoneNumber,
+		    @RequestParam(value = "studentId") String studentId) {
+		return studentManager.deleteStudent(classId, name, phoneNumber,studentId);
 	}
 	
 	@RequestMapping(path = "/currentclassid", method = RequestMethod.GET)

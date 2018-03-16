@@ -10,6 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.huawei.hwtraining.RandomString;
 import com.huawei.hwtraining.teacher.service.model.Student;
 import com.huawei.hwtraining.teacher.service.model.Task;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
@@ -55,7 +56,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 						stmt.execute("CREATE TABLE " + taskTableName
 								+ " ( classId varchar(50), status int, handPeople varchar(255), role varchar(255), task varchar(255), deadline varchar(20),detail varchar(500),comment varchar(255) )");
 						stmt.execute("CREATE TABLE " + studentinfTableName
-								+ " ( inviter varchar(50), classId varchar(50), name varchar(50), companyName varchar(255), industry varchar(100), title varchar(255), phoneNumber varchar(30), email varchar(100),hwcloudId varchar(100),comment varchar(255) )");
+								+ " ( inviter varchar(50), classId varchar(50), name varchar(50), companyName varchar(255), industry varchar(100), title varchar(255), phoneNumber varchar(30), email varchar(100),hwcloudId varchar(100),comment varchar(255) studentId varchar(50) NOT NULL, createTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, updateTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)");
 						stmt.execute("CREATE TABLE " + classidTableName + "  ( classId varchar(50) )");
 					} catch (SQLException e1) {
 						LOGGER.error("execute sql error: ", e1);
@@ -155,16 +156,51 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 		}
 		return new LinkedList<>();
 	}
+	
+	@Override
+	public List<Student> getStudent(String studentId) {
+		Statement stmt = null;
+		String sql = "SELECT * FROM " + studentinfTableName + " WHERE studentId='" + studentId + "'";
+		try {
+			stmt = getConnection(con).createStatement();
+			ResultSet re = stmt.executeQuery(sql);
+			return populate(re, Student.class);
+		} catch (SQLException e) {
+			LOGGER.error("getStudents  error: ", e);
+		} catch (InstantiationException e) {
+			LOGGER.error("getStudents  error: ", e);
+		} catch (IllegalAccessException e) {
+			LOGGER.error("getStudents  error: ", e);
+		} finally {
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {
+					LOGGER.error("close statement error", e);
+				}
+			}
+		}
+		return new LinkedList<>();
+	}
 
 	@Override
 	public boolean addStudent(Student student) {
 		Statement stmt = null;
-		String sql = "INSERT INTO " + studentinfTableName + " VALUES ('" +student.getInviter()+"','" +student.getClassId() + "', " + "'"
+		String sql="";
+		String addsql = "INSERT INTO " + studentinfTableName + " VALUES ('" +student.getInviter()+"','" +student.getClassId() + "', " + "'"
 				+ student.getName() + "', '" + student.getCompanyName() + "', '" +student.getIndustry()+"','"+ student.getTitle() + "', '"
 				+ student.getPhoneNumber() + "', '" + student.getEmail() + "', '" + student.getHwcloudId() + "', '"
-				+ student.getComment() + "')";
+				+ student.getComment() + "', '"+RandomString.getRandomString(30)+"',null,null)";
+		String updatesql = "UPDATE " + studentinfTableName + " SET name='"
+				+ student.getName() + "',companyName='" + student.getCompanyName() + "',industry='" +student.getIndustry()+"',title='"+ student.getTitle() + "',phoneNumber='"
+				+ student.getPhoneNumber() + "',email='" + student.getEmail() + "',hwcloudId='" + student.getHwcloudId() + "',comment='"
+				+ student.getComment() + "' where studentId='"+student.getStudentId()+"'";
+		if(student.getStudentId().equals("studentId")){
+			sql = addsql;
+		}else{
+			sql = updatesql;
+		}
 		try {
-
 			stmt = getConnection(con).createStatement();
 			stmt.executeUpdate(sql);
 			return true;
@@ -181,13 +217,38 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 		}
 		return false;
 	}
+	
+	@Override
+	public boolean updateStudent(Student student) {
+		Statement stmt = null;
+		String sql = "UPDATE" + studentinfTableName + " SET name='"
+				+ student.getName() + "', companyName='" + student.getCompanyName() + "',industry='" +student.getIndustry()+"',title='"+ student.getTitle() + "',phoneNumber'"
+				+ student.getPhoneNumber() + "',email='" + student.getEmail() + "',hwcloudId='" + student.getHwcloudId() + "',comment='"
+				+ student.getComment() + "' where studentId='"+RandomString.getRandomString(30)+"'";
+		try {
+			stmt = getConnection(con).createStatement();
+			stmt.executeUpdate(sql);
+			return true;
+		} catch (SQLException e) {
+			LOGGER.error("updateStudent  error: ", e);
+		} finally {
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {
+					LOGGER.error("close statement error: ", e);
+				}
+			}
+		}
+		return false;
+	}
 
 	@Override
-	public boolean deleteStudent(String classId, String name, String phoneNumber) {
+	public boolean deleteStudent(String classId, String name, String phoneNumber,String studentId) {
 
 		Statement stmt = null;
 		String sql = "DELETE FROM " + studentinfTableName + " WHERE classId='" + classId + "' and name='" + name
-				+ "' and phoneNumber='" + phoneNumber + "'";
+				+ "' and phoneNumber='" + phoneNumber + "' and studentId='"+studentId+"'";
 		try {
 			stmt = getConnection(con).createStatement();
 			stmt.executeUpdate(sql);
