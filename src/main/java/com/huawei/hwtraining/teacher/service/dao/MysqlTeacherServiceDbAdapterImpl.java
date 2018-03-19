@@ -203,7 +203,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 				+ student.getClassId() + "', " + "'" + student.getName() + "', '" + student.getCompanyName() + "', '"
 				+ student.getIndustry() + "','" + student.getTitle() + "', '" + student.getPhoneNumber() + "', '"
 				+ student.getEmail() + "', '" + student.getHwcloudId() + "', '" + student.getComment() + "', '"
-				+ RandomString.getRandomString(30) + "',null,null)";
+				+ RandomString.getRandomString(30) + "',now(),now())";
 		String updatesql = "UPDATE " + studentinfTableName + " SET name='" + student.getName() + "',companyName='"
 				+ student.getCompanyName() + "',industry='" + student.getIndustry() + "',title='" + student.getTitle()
 				+ "',phoneNumber='" + student.getPhoneNumber() + "',email='" + student.getEmail() + "',hwcloudId='"
@@ -259,7 +259,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 				//String studentId = formatter.formatCellValue(row.getCell(10));
 				sql = "insert into hwtraining_teacher_studentinf value('" + inviter + "','" + classId + "','"
 						+ companyName + "','" + industry + "','" + name + "','" + title + "','" + phoneNumber + "','"
-						+ email + "','" + hwcloudId + "','" + comment + "','" + RandomString.getRandomString(30) + "',null,null)";
+						+ email + "','" + hwcloudId + "','" + comment + "','" + RandomString.getRandomString(30) + "',now(),now())";
 				stmt.executeUpdate(sql);
 			}
 			inputStream.close();
