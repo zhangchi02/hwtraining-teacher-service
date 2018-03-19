@@ -84,11 +84,22 @@ public interface DbAdapter {
 	default Connection initDb(String ip, int port, String dbUserName, String dbPassword)
 			throws SQLException {
 		String tempIp = null != ip ? ip : DbAdapter.ip;
-		tempIp = null != System.getenv("MYSQL_DB_IP") ? System.getenv("MYSQL_DB_IP") : tempIp;
-
+		//tempIp = null != System.getenv("MYSQL_DB_IP") ? System.getenv("MYSQL_DB_IP") : tempIp;
+		if(null != System.getenv("MYSQL_DB_IP")){
+			tempIp = System.getenv("MYSQL_DB_IP");
+		}else if(null != System.getProperty("MYSQL_DB_IP")){
+			tempIp = System.getProperty("MYSQL_DB_IP");
+		}
+		
 		int tempPort = port > 0 ? port : DbAdapter.port;
-		tempPort = null != System.getenv("MYSQL_DB_PORT") ? Integer.parseInt(System.getenv("MYSQL_DB_PORT")) : tempPort;
-
+		//tempPort = null != System.getenv("MYSQL_DB_PORT") ? Integer.parseInt(System.getenv("MYSQL_DB_PORT")) : tempPort;
+        
+		if(null != System.getenv("MYSQL_DB_PORT")){
+			tempPort = Integer.parseInt(System.getenv("MYSQL_DB_PORT"));
+		}else if(null != System.getProperty("MYSQL_DB_PORT")){
+			tempPort = Integer.parseInt(System.getProperty("MYSQL_DB_PORT"));
+		}
+		
 		String tempDbUserName = DbAdapter.dbUserName;
 		String tempDbPassword = DbAdapter.dbPassword;
 		LOGGER.info("mysql ip: {} port: {}", tempIp, tempPort);

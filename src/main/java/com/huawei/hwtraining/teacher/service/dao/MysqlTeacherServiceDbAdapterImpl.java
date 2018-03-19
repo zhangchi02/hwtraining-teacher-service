@@ -1,5 +1,9 @@
 package com.huawei.hwtraining.teacher.service.dao;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,8 +11,16 @@ import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.huawei.hwtraining.RandomString;
 import com.huawei.hwtraining.teacher.service.model.Student;
@@ -56,7 +68,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 						stmt.execute("CREATE TABLE " + taskTableName
 								+ " ( classId varchar(50), status int, handPeople varchar(255), role varchar(255), task varchar(255), deadline varchar(20),detail varchar(500),comment varchar(255) )");
 						stmt.execute("CREATE TABLE " + studentinfTableName
-								+ " ( inviter varchar(50), classId varchar(50), name varchar(50), companyName varchar(255), industry varchar(100), title varchar(255), phoneNumber varchar(30), email varchar(100),hwcloudId varchar(100),comment varchar(255) studentId varchar(50) NOT NULL, createTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, updateTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)");
+								+ " ( inviter varchar(50), classId varchar(50), name varchar(50), companyName varchar(255), industry varchar(100), title varchar(255), phoneNumber varchar(30), email varchar(100),hwcloudId varchar(100),comment varchar(255),studentId varchar(50) NOT NULL, createTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, updateTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)");
 						stmt.execute("CREATE TABLE " + classidTableName + "  ( classId varchar(50) )");
 					} catch (SQLException e1) {
 						LOGGER.error("execute sql error: ", e1);
@@ -78,7 +90,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 	}
 
 	private MysqlTeacherServiceDbAdapterImpl() {
-		con=getConnection(con);
+		con = getConnection(con);
 	}
 
 	@Override
@@ -156,7 +168,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 		}
 		return new LinkedList<>();
 	}
-	
+
 	@Override
 	public List<Student> getStudent(String studentId) {
 		Statement stmt = null;
@@ -186,18 +198,20 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 	@Override
 	public boolean addStudent(Student student) {
 		Statement stmt = null;
-		String sql="";
-		String addsql = "INSERT INTO " + studentinfTableName + " VALUES ('" +student.getInviter()+"','" +student.getClassId() + "', " + "'"
-				+ student.getName() + "', '" + student.getCompanyName() + "', '" +student.getIndustry()+"','"+ student.getTitle() + "', '"
-				+ student.getPhoneNumber() + "', '" + student.getEmail() + "', '" + student.getHwcloudId() + "', '"
-				+ student.getComment() + "', '"+RandomString.getRandomString(30)+"',null,null)";
-		String updatesql = "UPDATE " + studentinfTableName + " SET name='"
-				+ student.getName() + "',companyName='" + student.getCompanyName() + "',industry='" +student.getIndustry()+"',title='"+ student.getTitle() + "',phoneNumber='"
-				+ student.getPhoneNumber() + "',email='" + student.getEmail() + "',hwcloudId='" + student.getHwcloudId() + "',comment='"
-				+ student.getComment() + "' where studentId='"+student.getStudentId()+"'";
-		if(student.getStudentId().equals("studentId")){
+		String sql = "";
+		String addsql = "INSERT INTO " + studentinfTableName + " VALUES ('" + student.getInviter() + "','"
+				+ student.getClassId() + "', " + "'" + student.getName() + "', '" + student.getCompanyName() + "', '"
+				+ student.getIndustry() + "','" + student.getTitle() + "', '" + student.getPhoneNumber() + "', '"
+				+ student.getEmail() + "', '" + student.getHwcloudId() + "', '" + student.getComment() + "', '"
+				+ RandomString.getRandomString(30) + "',null,null)";
+		String updatesql = "UPDATE " + studentinfTableName + " SET name='" + student.getName() + "',companyName='"
+				+ student.getCompanyName() + "',industry='" + student.getIndustry() + "',title='" + student.getTitle()
+				+ "',phoneNumber='" + student.getPhoneNumber() + "',email='" + student.getEmail() + "',hwcloudId='"
+				+ student.getHwcloudId() + "',comment='" + student.getComment() + "' where studentId='"
+				+ student.getStudentId() + "'";
+		if (student.getStudentId().equals("studentId")) {
 			sql = addsql;
-		}else{
+		} else {
 			sql = updatesql;
 		}
 		try {
@@ -217,14 +231,68 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 		}
 		return false;
 	}
-	
+
+	@Override
+	public boolean importStudent(MultipartFile file) {
+		Workbook workbook;
+		Statement stmt = null;
+		String sql;
+		InputStream inputStream ;
+		try {
+			inputStream = file.getInputStream();
+			workbook = WorkbookFactory.create(inputStream);
+			Sheet sheet = workbook.getSheetAt(0);
+			
+			DataFormatter formatter = new DataFormatter();
+			stmt = getConnection(con).createStatement();
+			for (Row row : sheet) {
+				String inviter = formatter.formatCellValue(row.getCell(0));
+				String classId = formatter.formatCellValue(row.getCell(1));
+				String companyName = formatter.formatCellValue(row.getCell(2));
+				String industry = formatter.formatCellValue(row.getCell(3));
+				String name = formatter.formatCellValue(row.getCell(4));
+				String title = formatter.formatCellValue(row.getCell(5));
+				String phoneNumber = formatter.formatCellValue(row.getCell(6));
+				String email = formatter.formatCellValue(row.getCell(7));
+				String hwcloudId = formatter.formatCellValue(row.getCell(8));
+				String comment = formatter.formatCellValue(row.getCell(9));
+				//String studentId = formatter.formatCellValue(row.getCell(10));
+				sql = "insert into hwtraining_teacher_studentinf value('" + inviter + "','" + classId + "','"
+						+ companyName + "','" + industry + "','" + name + "','" + title + "','" + phoneNumber + "','"
+						+ email + "','" + hwcloudId + "','" + comment + "','" + RandomString.getRandomString(30) + "',null,null)";
+				stmt.executeUpdate(sql);
+			}
+			inputStream.close();
+			return true;
+		} catch (EncryptedDocumentException e) {
+			LOGGER.error("parse file error: ", e);
+		} catch (InvalidFormatException e) {
+			LOGGER.error("parse file error: ", e);
+		} catch (IOException e) {
+			LOGGER.error("file not found  error: ", e);
+		}
+		 catch (SQLException e) {
+			LOGGER.error("importStudent  error: ", e);
+		} finally {
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {
+					LOGGER.error("close statement error: ", e);
+				}
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public boolean updateStudent(Student student) {
 		Statement stmt = null;
-		String sql = "UPDATE" + studentinfTableName + " SET name='"
-				+ student.getName() + "', companyName='" + student.getCompanyName() + "',industry='" +student.getIndustry()+"',title='"+ student.getTitle() + "',phoneNumber'"
-				+ student.getPhoneNumber() + "',email='" + student.getEmail() + "',hwcloudId='" + student.getHwcloudId() + "',comment='"
-				+ student.getComment() + "' where studentId='"+RandomString.getRandomString(30)+"'";
+		String sql = "UPDATE" + studentinfTableName + " SET name='" + student.getName() + "', companyName='"
+				+ student.getCompanyName() + "',industry='" + student.getIndustry() + "',title='" + student.getTitle()
+				+ "',phoneNumber'" + student.getPhoneNumber() + "',email='" + student.getEmail() + "',hwcloudId='"
+				+ student.getHwcloudId() + "',comment='" + student.getComment() + "' where studentId='"
+				+ RandomString.getRandomString(30) + "'";
 		try {
 			stmt = getConnection(con).createStatement();
 			stmt.executeUpdate(sql);
@@ -244,11 +312,11 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 	}
 
 	@Override
-	public boolean deleteStudent(String classId, String name, String phoneNumber,String studentId) {
+	public boolean deleteStudent(String classId, String name, String phoneNumber, String studentId) {
 
 		Statement stmt = null;
 		String sql = "DELETE FROM " + studentinfTableName + " WHERE classId='" + classId + "' and name='" + name
-				+ "' and phoneNumber='" + phoneNumber + "' and studentId='"+studentId+"'";
+				+ "' and phoneNumber='" + phoneNumber + "' and studentId='" + studentId + "'";
 		try {
 			stmt = getConnection(con).createStatement();
 			stmt.executeUpdate(sql);

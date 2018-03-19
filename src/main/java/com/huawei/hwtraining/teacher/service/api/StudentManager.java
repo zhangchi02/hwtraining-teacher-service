@@ -2,6 +2,8 @@ package com.huawei.hwtraining.teacher.service.api;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.huawei.hwtraining.teacher.service.model.Student;
 
 /**
@@ -19,6 +21,8 @@ public interface StudentManager {
 	List<Student> getStudent(String studentId);
 
 	boolean addStudent(Student student);
+	
+	boolean importStudent(MultipartFile file);
 
 	boolean updateStudent(Student student);
 
