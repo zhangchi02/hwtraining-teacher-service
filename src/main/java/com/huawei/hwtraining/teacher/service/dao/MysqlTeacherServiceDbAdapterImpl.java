@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -347,6 +349,11 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 			if (re.next()) {
 				classId = re.getString(1);
 			}
+			if("0".equals(classId) || "".equals(classId) || null == classId){
+				Date currentTime = new Date();
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyyMM");
+				classId = formatter.format(currentTime);
+			}
 			return classId;
 		} catch (SQLException e) {
 			LOGGER.error("getCurrentClassId  error: ", e);
@@ -368,11 +375,14 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 		String sql = "SELECT MAX(STUDENTID) FROM " + studentinfTableName;
 		try {
 			stmt = getConnection(con).createStatement();
+			String currentClassId = this.getCurrentClassId();
+			sql += " WHERE CLASSID='" + currentClassId +"'";
 			ResultSet re = stmt.executeQuery(sql);
 			if (re.next()) {
 				studentId = re.getString(1);
-			}else{
-				studentId = this.getCurrentClassId() + "000";
+			}
+			if("".equals(studentId) || null == studentId){
+				studentId = currentClassId + "000";
 			}
 			return studentId;
 		} catch (SQLException e) {
