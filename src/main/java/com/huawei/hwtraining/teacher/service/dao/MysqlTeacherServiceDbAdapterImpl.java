@@ -1,7 +1,5 @@
 package com.huawei.hwtraining.teacher.service.dao;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -199,20 +197,18 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 	public boolean addStudent(Student student) {
 		Statement stmt = null;
 		String sql = "";
-		String addsql = "INSERT INTO " + studentinfTableName + " VALUES ('" + student.getInviter() + "','"
-				+ student.getClassId() + "', " + "'" + student.getName() + "', '" + student.getCompanyName() + "', '"
-				+ student.getIndustry() + "','" + student.getTitle() + "', '" + student.getPhoneNumber() + "', '"
-				+ student.getEmail() + "', '" + student.getHwcloudId() + "', '" + student.getComment() + "', '"
-				+ RandomString.getRandomString(30) + "',now(),now())";
-		String updatesql = "UPDATE " + studentinfTableName + " SET name='" + student.getName() + "',companyName='"
-				+ student.getCompanyName() + "',industry='" + student.getIndustry() + "',title='" + student.getTitle()
-				+ "',phoneNumber='" + student.getPhoneNumber() + "',email='" + student.getEmail() + "',hwcloudId='"
-				+ student.getHwcloudId() + "',comment='" + student.getComment() + "' where studentId='"
-				+ student.getStudentId() + "'";
 		if (student.getStudentId().equals("studentId")) {
-			sql = addsql;
+			sql = "INSERT INTO " + studentinfTableName + " VALUES ('" + student.getInviter() + "','"
+					+ student.getClassId() + "', " + "'" + student.getName() + "', '" + student.getCompanyName() + "', '"
+					+ student.getIndustry() + "','" + student.getTitle() + "', '" + student.getPhoneNumber() + "', '"
+					+ student.getEmail() + "', '" + student.getHwcloudId() + "', '" + student.getComment() + "', '"
+					+ (Integer.parseInt(this.getMaxStudentId())+1) + "',now(),now())";
 		} else {
-			sql = updatesql;
+			sql = "UPDATE " + studentinfTableName + " SET name='" + student.getName() + "',companyName='"
+					+ student.getCompanyName() + "',industry='" + student.getIndustry() + "',title='" + student.getTitle()
+					+ "',phoneNumber='" + student.getPhoneNumber() + "',email='" + student.getEmail() + "',hwcloudId='"
+					+ student.getHwcloudId() + "',comment='" + student.getComment() + "' where studentId='"
+					+ student.getStudentId() + "'";
 		}
 		try {
 			stmt = getConnection(con).createStatement();
@@ -237,8 +233,9 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 		Workbook workbook;
 		Statement stmt = null;
 		String sql;
-		InputStream inputStream ;
+		InputStream inputStream = null ;
 		try {
+			int maxStudentId = Integer.parseInt(this.getMaxStudentId());
 			inputStream = file.getInputStream();
 			workbook = WorkbookFactory.create(inputStream);
 			Sheet sheet = workbook.getSheetAt(0);
@@ -259,10 +256,9 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 				//String studentId = formatter.formatCellValue(row.getCell(10));
 				sql = "insert into hwtraining_teacher_studentinf value('" + inviter + "','" + classId + "','"
 						+ companyName + "','" + industry + "','" + name + "','" + title + "','" + phoneNumber + "','"
-						+ email + "','" + hwcloudId + "','" + comment + "','" + RandomString.getRandomString(30) + "',now(),now())";
+						+ email + "','" + hwcloudId + "','" + comment + "','" + ++maxStudentId + "',now(),now())";
 				stmt.executeUpdate(sql);
 			}
-			inputStream.close();
 			return true;
 		} catch (EncryptedDocumentException e) {
 			LOGGER.error("parse file error: ", e);
@@ -270,10 +266,15 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 			LOGGER.error("parse file error: ", e);
 		} catch (IOException e) {
 			LOGGER.error("file not found  error: ", e);
-		}
-		 catch (SQLException e) {
+		} catch (SQLException e) {
 			LOGGER.error("importStudent  error: ", e);
 		} finally {
+			try {
+				inputStream.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block  
+				e1.printStackTrace();  
+			}
 			if (stmt != null) {
 				try {
 					stmt.close();
@@ -348,7 +349,7 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 			}
 			return classId;
 		} catch (SQLException e) {
-			LOGGER.error("getStudents  error: ", e);
+			LOGGER.error("getCurrentClassId  error: ", e);
 		} finally {
 			if (stmt != null) {
 				try {
@@ -359,5 +360,32 @@ public class MysqlTeacherServiceDbAdapterImpl implements TeacherServiceDbAdapter
 			}
 		}
 		return classId;
+	}
+	
+	public String getMaxStudentId() {
+		String studentId = "0";
+		Statement stmt = null;
+		String sql = "SELECT MAX(STUDENTID) FROM " + studentinfTableName;
+		try {
+			stmt = getConnection(con).createStatement();
+			ResultSet re = stmt.executeQuery(sql);
+			if (re.next()) {
+				studentId = re.getString(1);
+			}else{
+				studentId = this.getCurrentClassId() + "000";
+			}
+			return studentId;
+		} catch (SQLException e) {
+			LOGGER.error("getMaxStudentId  error: ", e);
+		} finally {
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {
+					LOGGER.error("close statement error", e);
+				}
+			}
+		}
+		return studentId;
 	}
 }
