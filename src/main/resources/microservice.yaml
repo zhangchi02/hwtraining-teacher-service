@@ -26,6 +26,6 @@ cse:
       Provider:
         default: bizkeeper-provider,qps-flowcontrol-provider
   credentials:
-    accessKey: SQXZYPSDEZAWY10RACO7
-    secretKey: zMgxdKKD9Fh5owFeZGNSBhgeE1iHk7YmLLm0J4Ns
+    accessKey: yourak
+    secretKey: yoursk
     akskCustomCipher: default
